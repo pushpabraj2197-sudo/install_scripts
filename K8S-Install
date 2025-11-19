@@ -83,8 +83,8 @@ EOF
 sudo su - <<EOF
 echo -e "\n--------------------------  Adding K8S packgaes to APT list --------------------------\n"
 [[ -d "/etc/apt/keyrings" ]] || mkdir -p /etc/apt/keyrings
-curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.32/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
-echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.32/deb/ /' | sudo tee /etc/apt/sources.list.d/kubernetes.list
+curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.34/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.34/deb/ /' | sudo tee /etc/apt/sources.list.d/kubernetes.list
 EOF
 
 
@@ -117,10 +117,14 @@ echo "            kubeadm token create --print-join-command"
 echo -e "\n-----------------------------------------------------------------------------------\n"
 
 echo -e "\n-------------------------- Setiing-up Kubectl config  --------------------------\n"
-sleep 4
+sleep 10
 mkdir -p $HOME/.kube
-sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config 
-sudo chown $(id -u):$(id -g) $HOME/.kube/config
+if [[ -f "/etc/kubernetes/admin.conf" ]]; then 
+    sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config 
+    sudo chown $(id -u):$(id -g) $HOME/.kube/config
+else 
+    echo '/etc/kubernetes/admin.conf Not found'
+fi
 [[ -f "$HOME/.kube/config" ]] || echo "     Kubeconfig copied $HOME/.kube/config"
 
 echo -e "\n-------------------------- Install calico/weaveworks networking and network policy plugin --------------------------\n"
